@@ -87,6 +87,7 @@ class CalendariIOCException extends Error {
             "413": "Els calendaris FP/BTX requereixen codi de semestre",
             "414": "Error carregant el fitxer de calendari",
             "415": "Fitxer JSON incompatible amb aquesta versió de l'aplicació. Exporta un nou JSON amb la versió actual",
+            "416": "localStorage conté dades d'una versió anterior. Utilitzeu 'Clear Storage' (part superior dreta) per netejar-les i reiniciar.",
             
             // === ERRORS DE VALIDACIÓ DE DATES (5xx) ===
             // Validació de dates i rangs temporals

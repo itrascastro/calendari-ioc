@@ -64,7 +64,16 @@ class StorageManager {
         
             // FASE 2: Rehidratar estat JSON pla a grafo d'objectes amb instàncies
             console.log('[Storage] Iniciant rehidratació d\'objectes...');
-            const rehydratedState = CalendariIOC_DataRehydrator.rehydrateState(loadedState);
+            let rehydratedState;
+            try {
+                rehydratedState = CalendariIOC_DataRehydrator.rehydrateState(loadedState);
+            } catch (error) {
+                // Si és error d'estructura incompatible (415) des de localStorage, convertir a 416
+                if (error instanceof CalendariIOCException && error.codiCausa === '415') {
+                    throw new CalendariIOCException('416', 'StorageManager.loadFromStorage');
+                }
+                throw error;
+            }
             
             appStateManager.appState = { 
                 ...rehydratedState, 
