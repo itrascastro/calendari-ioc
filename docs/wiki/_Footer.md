@@ -1,0 +1,1 @@
+**Calendari IOC** | [Repositori](https://github.com/itrascastro/ioc-modul-calendari) | **Autor**: Ismael Trascastro (itrascastro@ioc.cat) | [Web](https://itrascastro.github.io)

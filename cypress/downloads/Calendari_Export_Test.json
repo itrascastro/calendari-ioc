@@ -1,0 +1,62 @@
+{
+  "id": "CALENDARI_EXPORT_TEST_1754047426879",
+  "name": "Calendari Export Test",
+  "startDate": "2024-01-01",
+  "endDate": "2024-12-31",
+  "type": "Altre",
+  "code": null,
+  "eventCounter": 3,
+  "categoryCounter": 3,
+  "categories": [
+    {
+      "id": "CALENDARI_EXPORT_TEST_1754047426879_C1",
+      "name": "Reunions JSON Test",
+      "color": "#f56565",
+      "isSystem": false
+    },
+    {
+      "id": "CALENDARI_EXPORT_TEST_1754047426879_C2",
+      "name": "Projectes Export",
+      "color": "#319795",
+      "isSystem": false
+    },
+    {
+      "id": "CALENDARI_EXPORT_TEST_1754047426879_C3",
+      "name": "Events Importants",
+      "color": "#e53e3e",
+      "isSystem": false
+    }
+  ],
+  "events": [
+    {
+      "id": "CALENDARI_EXPORT_TEST_1754047426879_E1",
+      "title": "Reunió JSON Export",
+      "date": "2024-01-01",
+      "categoryId": "CALENDARI_EXPORT_TEST_1754047426879_C1",
+      "description": "",
+      "isSystemEvent": false
+    },
+    {
+      "id": "CALENDARI_EXPORT_TEST_1754047426879_E2",
+      "title": "Demo Exportació",
+      "date": "2024-01-01",
+      "categoryId": "CALENDARI_EXPORT_TEST_1754047426879_C1",
+      "description": "",
+      "isSystemEvent": false
+    },
+    {
+      "id": "CALENDARI_EXPORT_TEST_1754047426879_E3",
+      "title": "Validació Final",
+      "date": "2024-01-01",
+      "categoryId": "CALENDARI_EXPORT_TEST_1754047426879_C1",
+      "description": "",
+      "isSystemEvent": false
+    }
+  ],
+  "exportInfo": {
+    "version": "1.0",
+    "exportDate": "2025-08-01T11:24:04.944Z",
+    "exportedBy": "Calendari-Modul-IOC",
+    "calendarType": "Altre"
+  }
+}

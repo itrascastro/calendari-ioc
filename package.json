@@ -1,0 +1,22 @@
+{
+  "name": "calendari-ioc",
+  "version": "1.0.0",
+  "description": "Aplicació web per gestionar calendaris acadèmics IOC",
+  "scripts": {
+    "test": "cypress run",
+    "test:open": "cypress open",
+    "test:headless": "cypress run --headless",
+    "serve": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "cypress": "^13.17.0",
+    "glob": "^8.1.0"
+  },
+  "keywords": [
+    "calendar",
+    "education",
+    "ioc"
+  ],
+  "author": "Ismael Trascastro",
+  "license": "MIT"
+}
