@@ -33,7 +33,7 @@ show_error() {
 # Variables
 REPO_URL="https://github.com/itrascastro/itrascastro.github.io.git"
 TEMP_DIR="/tmp/itrascastro.github.io"
-TARGET_DIR="ioc/ioc-calendari-modul"
+TARGET_DIR="ioc/calendari-ioc"
 PROJECT_DIR=$(pwd)
 
 show_message "🚀" "Iniciant desplegament a GitHub Pages..."
@@ -138,7 +138,7 @@ cd "$PROJECT_DIR"
 rm -rf "$TEMP_DIR"
 
 # Missatge final
-show_success "🌐" "Aplicació desplegada a: https://itrascastro.github.io/ioc/ioc-calendari-modul/"
+show_success "🌐" "Aplicació desplegada a: https://itrascastro.github.io/ioc/calendari-ioc/"
 show_message "⏰" "Pot trigar uns minuts a estar disponible degut a la cache de GitHub Pages"
 
 echo ""

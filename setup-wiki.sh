@@ -25,7 +25,7 @@ fi
 
 # Clona el repositori wiki
 echo "📥 Clonant repositori wiki..."
-git clone https://github.com/itrascastro/ioc-modul-calendari.wiki.git temp-wiki
+git clone https://github.com/itrascastro/calendari-ioc.wiki.git temp-wiki
 
 # Verifica que la clonació ha funcionat
 if [ ! -d "temp-wiki" ]; then
@@ -59,7 +59,7 @@ EOF
 # Crea footer
 echo "🔗 Creant footer..."
 cat > temp-wiki/_Footer.md << 'EOF'
-**Calendari IOC** | [Repositori](https://github.com/itrascastro/ioc-modul-calendari) | **Autor**: Ismael Trascastro (itrascastro@ioc.cat)
+**Calendari IOC** | [Repositori](https://github.com/itrascastro/calendari-ioc) | **Autor**: Ismael Trascastro (itrascastro@ioc.cat)
 EOF
 
 # Puja els canvis
@@ -91,4 +91,4 @@ cd ..
 rm -rf temp-wiki
 
 echo "✅ Wiki configurada correctament!"
-echo "🌐 Accedeix a: https://github.com/itrascastro/ioc-modul-calendari/wiki"
+echo "🌐 Accedeix a: https://github.com/itrascastro/calendari-ioc/wiki"
