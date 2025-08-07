@@ -66,23 +66,30 @@ describe('IOC CALENDARI - TEST 13 DELETE CATEGORY', () => {
             categoryId = cat.id;
         });
 
-        // 3. Afegir un esdeveniment directament a l'estat per fiabilitat del test
+        // 3. Afegir un esdeveniment directament a l'estat usant els models correctes
         cy.window().then((win) => {
-            const { appStateManager, storageManager, viewManager, idHelper } = win.app;
+            const { appStateManager, storageManager, viewManager, idHelper, CalendariIOC_Event } = win.app;
             const calendar = appStateManager.getCurrentCalendar();
             
+            // Trobar la INSTÀNCIA de la categoria, no només el seu ID
+            const categoryInstance = calendar.categories.find(c => c.id === categoryId);
+            expect(categoryInstance).to.exist;
+
             eventId = idHelper.generateNextEventId(calendar.id);
 
-            const newEvent = {
+            // Crear una INSTÀNCIA de CalendariIOC_Event
+            const newEvent = new CalendariIOC_Event({
                 id: eventId,
                 title: 'Esdeveniment de Prova',
                 date: '2025-01-15',
-                categoryId: categoryId,
+                category: categoryInstance, // Passar la instància completa
                 description: 'Creat per test',
                 isSystemEvent: false
-            };
+            });
 
-            calendar.events.push(newEvent);
+            // Utilitzar el mètode públic per afegir l'esdeveniment
+            calendar.addEvent(newEvent);
+            
             storageManager.saveToStorage();
             viewManager.renderCurrentView();
             cy.log(`IDs guardats -> Categoria: ${categoryId}, Esdeveniment: ${eventId}`);
