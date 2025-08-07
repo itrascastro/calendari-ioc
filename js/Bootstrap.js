@@ -114,6 +114,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Exposar managers per a testing amb Cypress
     if (window.Cypress) {
         window.app = {
+            // Models
+            CalendariIOC_Calendar,
+            CalendariIOC_Category,
+            CalendariIOC_Event,
+            // Managers & Helpers
             calendarManager,
             storageManager,
             appStateManager,
