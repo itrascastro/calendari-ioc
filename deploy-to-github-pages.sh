@@ -102,16 +102,19 @@ cd "$TEMP_DIR"
 git config user.name "itrascastro"
 git config user.email "itrascastro@gmail.com"
 
-# Verificar que hi ha canvis per cometre
-if git diff --quiet && git diff --cached --quiet; then
+# Sempre fer deploy si no hi ha res (primer cop) o forçar si hi ha canvis
+show_message "📦" "Afegint canvis per deploy..."
+git add .
+
+# Verificar si hi ha canvis staged
+if git diff --cached --quiet; then
     show_warning "⚠️" "No hi ha canvis per desplegar"
+    cd "$PROJECT_DIR"
     rm -rf "$TEMP_DIR"
     exit 0
+else
+    show_message "✅" "Canvis detectats, procedint amb deploy..."
 fi
-
-# Afegir tots els canvis
-show_message "📦" "Afegint canvis..."
-git add .
 
 # Crear commit amb timestamp
 TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
@@ -122,7 +125,7 @@ git commit -m "$COMMIT_MESSAGE"
 
 # Pas 6: Pujar canvis a GitHub
 show_message "Pujant canvis a GitHub..."
-git push origin main
+git push origin master
 
 if [ $? -eq 0 ]; then
     show_success "✅" "Desplegament completat amb èxit!"
