@@ -305,7 +305,8 @@ class ReplicaManager {
         dateValidationService.validateReplicationDate(targetDate, calendar);
         
         // FASE 3: Crear nou esdeveniment com a instància de classe
-        const categoryId = unplacedItem.event.categoryId;
+        const originalCategory = unplacedItem.event.getCategory();
+        const categoryId = originalCategory?.id;
         let category = calendar.findCategoryById(categoryId);
         
         // Si la categoria no existeix al calendari destí, buscar-la al catàleg global

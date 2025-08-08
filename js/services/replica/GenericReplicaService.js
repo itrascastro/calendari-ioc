@@ -39,7 +39,7 @@ class GenericReplicaService extends ReplicaService {
             }
             
             // REPLICAR CATEGORIES NECESSÀRIES PRIMER
-            const categoryMap = this.replicateRequiredCategories(professorEvents, targetCalendar);
+            const categoryMap = this.replicateRequiredCategories(professorEvents);
             console.log(`[GENERIC_REPLICA_SERVICE] Categories replicades: ${categoryMap.size}`);
             
             // Construir espais útils
@@ -53,18 +53,25 @@ class GenericReplicaService extends ReplicaService {
                 console.log(`[GENERIC_REPLICA_SERVICE] Calendari destí sense espai útil disponible`);
                 return { 
                     placed: [], 
-                    unplaced: professorEvents.map(event => ({ 
-                        event: {
+                    unplaced: professorEvents.map(event => {
+                        const originalCategory = event.getCategory();
+                        const targetCategory = categoryMap.get(originalCategory?.id);
+                        
+                        const unplacedEvent = new CalendariIOC_Event({
                             id: event.id,
                             title: event.title,
                             date: event.date,
-                            description: event.description,
-                            isSystemEvent: event.isSystemEvent,
-                            categoryId: event.getCategory()?.id || event.categoryId
-                        },
-                        sourceCalendar,
-                        reason: "Calendari destí sense espai útil disponible" 
-                    })) 
+                            description: event.description || '',
+                            isSystemEvent: event.isSystemEvent || false,
+                            category: targetCategory || originalCategory // Mantenir referència categoria
+                        });
+                        
+                        return { 
+                            event: unplacedEvent,
+                            sourceCalendar,
+                            reason: "Calendari destí sense espai útil disponible" 
+                        };
+                    }) 
                 };
             }
             
@@ -339,15 +346,20 @@ class GenericReplicaService extends ReplicaService {
             if (indexOrigen === -1) {
                 console.log(`[GENERIC_REPLICA_SERVICE] Dia ${originalDate} no està en espai útil d'origen`);
                 dayEvents.forEach(event => {
+                    const originalCategory = event.getCategory();
+                    const targetCategory = categoryMap.get(originalCategory?.id);
+                    
+                    const unplacedEvent = new CalendariIOC_Event({
+                        id: event.id,
+                        title: event.title,
+                        date: event.date,
+                        description: event.description || '',
+                        isSystemEvent: event.isSystemEvent || false,
+                        category: targetCategory || originalCategory // Mantenir referència categoria
+                    });
+                    
                     unplacedEvents.push({
-                        event: {
-                            id: event.id,
-                            title: event.title,
-                            date: event.date,
-                            description: event.description,
-                            isSystemEvent: event.isSystemEvent,
-                            categoryId: event.getCategory()?.id || event.categoryId
-                        },
+                        event: unplacedEvent,
                         sourceCalendar,
                         reason: "Dia no està en espai útil d'origen"
                     });
@@ -367,15 +379,20 @@ class GenericReplicaService extends ReplicaService {
             if (indexFinal >= espaiDesti.length) {
                 console.log(`[GENERIC_REPLICA_SERVICE] No hi ha espai per grup ${originalDate}`);
                 dayEvents.forEach(event => {
+                    const originalCategory = event.getCategory();
+                    const targetCategory = categoryMap.get(originalCategory?.id);
+                    
+                    const unplacedEvent = new CalendariIOC_Event({
+                        id: event.id,
+                        title: event.title,
+                        date: event.date,
+                        description: event.description || '',
+                        isSystemEvent: event.isSystemEvent || false,
+                        category: targetCategory || originalCategory // Mantenir referència categoria
+                    });
+                    
                     unplacedEvents.push({
-                        event: {
-                            id: event.id,
-                            title: event.title,
-                            date: event.date,
-                            description: event.description,
-                            isSystemEvent: event.isSystemEvent,
-                            categoryId: event.getCategory()?.id || event.categoryId
-                        },
+                        event: unplacedEvent,
                         sourceCalendar,
                         reason: "Sense espai disponible en compressió"
                     });

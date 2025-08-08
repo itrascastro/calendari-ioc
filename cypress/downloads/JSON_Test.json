@@ -1,17 +1,18 @@
 {
-  "id": "JSON_TEST_1754047184134",
+  "id": "JSON_TEST_1754579944503",
   "name": "JSON Test",
   "startDate": "2024-01-01",
   "endDate": "2024-12-31",
   "type": "Altre",
   "code": null,
-  "eventCounter": 0,
-  "categoryCounter": 0,
+  "lastEventId": 0,
+  "lastCategoryId": 0,
+  "paf1Date": null,
   "categories": [],
   "events": [],
   "exportInfo": {
     "version": "1.0",
-    "exportDate": "2025-08-01T11:19:44.269Z",
+    "exportDate": "2025-08-07T15:19:04.639Z",
     "exportedBy": "Calendari-Modul-IOC",
     "calendarType": "Altre"
   }
