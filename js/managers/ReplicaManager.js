@@ -75,6 +75,7 @@ class ReplicaManager {
     executeReplication() {
         const sourceCalendarId = this.currentSourceCalendarId;
         const targetCalendarId = document.getElementById('targetCalendarSelect').value;
+        const respectWeekdays = document.getElementById('respectWeekdays').checked;
         
         if (!sourceCalendarId) {
             throw new CalendariIOCException('702', 'ReplicaManager.executeReplication');
@@ -97,8 +98,8 @@ class ReplicaManager {
             // Seleccionar servei de replicació adequat mitjançant Factory
             const replicaService = ReplicaServiceFactory.getService(sourceCalendar, targetCalendar);
             
-            // Executar replicació usant el servei seleccionat
-            const result = replicaService.replicate(sourceCalendar, targetCalendar);
+            // Executar replicació usant el servei seleccionat amb opcions d'usuari
+            const result = replicaService.replicate(sourceCalendar, targetCalendar, respectWeekdays);
             
             // FASE 3: Aplicar esdeveniments replicats (ja són instàncies CalendariIOC_Event)
             result.placed.forEach(placedItem => {

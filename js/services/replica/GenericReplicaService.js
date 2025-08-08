@@ -22,7 +22,7 @@
 class GenericReplicaService extends ReplicaService {
     
     // Funció principal de replicació optimitzada per calendaris "Altre"
-    replicate(sourceCalendar, targetCalendar) {
+    replicate(sourceCalendar, targetCalendar, respectWeekdays = true) {
         console.log(`[GENERIC_REPLICA_SERVICE] Iniciant replicació per calendaris tipus "Altre"...`);
         
         try {
@@ -71,7 +71,7 @@ class GenericReplicaService extends ReplicaService {
             // Decidir estratègia segons comparació d'espais
             if (espaiUtilDesti.length >= espaiUtilOrigen.length) {
                 console.log(`[GENERIC_REPLICA_SERVICE] Espai destí igual o superior: aplicant còpia directa 1:1`);
-                return this.executeDirectMapping(professorEvents, espaiUtilOrigen, espaiUtilDesti, sourceCalendar, categoryMap, targetCalendar);
+                return this.executeDirectMapping(professorEvents, espaiUtilOrigen, espaiUtilDesti, sourceCalendar, categoryMap, targetCalendar, respectWeekdays);
             } else {
                 console.log(`[GENERIC_REPLICA_SERVICE] Espai destí menor: aplicant compressió per grups`);
                 return this.executeCompressionReplication(professorEvents, espaiUtilOrigen, espaiUtilDesti, sourceCalendar, categoryMap, targetCalendar);
@@ -85,15 +85,15 @@ class GenericReplicaService extends ReplicaService {
     }
     
     // Estratègia per espai destí igual o superior - sempre mapeo directe 1:1
-    executeDirectMapping(professorEvents, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar) {
+    executeDirectMapping(professorEvents, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar, respectWeekdays = true) {
         console.log(`[GENERIC_REPLICA_SERVICE] Executant còpia directa 1:1...`);
         
         // Agrupar esdeveniments per dia
         const eventsByDay = this.groupEventsByDay(professorEvents);
         
         // Sempre usar mapeo directe independentment de la mida del destí
-        console.log(`[GENERIC_REPLICA_SERVICE] Mapeo directe: mantenint posicions cronològiques originals`);
-        return this.mapDirectly(eventsByDay, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar);
+        console.log(`[GENERIC_REPLICA_SERVICE] Mapeo directe: ${respectWeekdays ? 'respectant dies setmana' : 'per ordre cronològic'}`);
+        return this.mapDirectly(eventsByDay, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar, respectWeekdays);
     }
     
     // Estratègia per espai destí menor (compressió)
@@ -125,10 +125,15 @@ class GenericReplicaService extends ReplicaService {
         return groups;
     }
     
-    // Còpia directa dia a dia (espais idèntics)
-    mapDirectly(eventsByDay, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar) {
+    // Còpia directa dia a dia amb opció de respectar dies de la setmana
+    mapDirectly(eventsByDay, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar, respectWeekdays = true) {
         const placedEvents = [];
         
+        if (respectWeekdays) {
+            return this.mapWithWeekdayRespect(eventsByDay, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar);
+        }
+        
+        // Mapeo original per índex per retrocompatibilitat
         for (const [originalDate, dayEvents] of eventsByDay) {
             const indexOrigen = espaiOrigen.indexOf(originalDate);
             
@@ -140,7 +145,7 @@ class GenericReplicaService extends ReplicaService {
             // Mateixa posició en destí
             const newDate = espaiDesti[indexOrigen];
             
-            console.log(`[GENERIC_REPLICA_SERVICE] Grup ${originalDate} (${dayEvents.length} events) → ${newDate} (còpia directa)`);
+            console.log(`[GENERIC_REPLICA_SERVICE] Grup ${originalDate} (${dayEvents.length} events) → ${newDate} (ordre cronològic)`);
             
             // Replicar tots els esdeveniments del grup al mateix dia destí
             dayEvents.forEach(event => {
@@ -169,11 +174,99 @@ class GenericReplicaService extends ReplicaService {
             });
         }
         
-        console.log(`[GENERIC_REPLICA_SERVICE] Còpia directa completada: ${placedEvents.length} esdeveniments, 0 no ubicats`);
+        console.log(`[GENERIC_REPLICA_SERVICE] Còpia per ordre cronològic completada: ${placedEvents.length} esdeveniments, 0 no ubicats`);
         
         return { 
             placed: placedEvents, 
             unplaced: [] // Sempre 0 per còpia directa
+        };
+    }
+    
+    // Mapeo respectant dies de la setmana amb algoritme de distàncies
+    mapWithWeekdayRespect(eventsByDay, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar) {
+        const placedEvents = [];
+        const allEvents = [];
+        
+        // Recollir tots els esdeveniments amb les seves dates originals
+        for (const [originalDate, dayEvents] of eventsByDay) {
+            dayEvents.forEach(event => {
+                allEvents.push({ originalDate, event });
+            });
+        }
+        
+        // Ordenar per data original
+        allEvents.sort((a, b) => new Date(a.originalDate) - new Date(b.originalDate));
+        
+        if (allEvents.length === 0) {
+            return { placed: [], unplaced: [] };
+        }
+        
+        // Trobar primer dia coincident en destí
+        const firstEventDate = allEvents[0].originalDate;
+        const firstEventDay = new Date(firstEventDate).getDay();
+        
+        const firstTargetIndex = espaiDesti.findIndex(date => {
+            return new Date(date).getDay() === firstEventDay;
+        });
+        
+        if (firstTargetIndex === -1) {
+            // Fallback a mapeo per índex si no troba coincidència
+            console.log(`[GENERIC_REPLICA_SERVICE] No es troba dia coincident per ${firstEventDate}, usant mapeo per índex`);
+            return this.mapDirectly(eventsByDay, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar, false);
+        }
+        
+        const baseTargetDate = new Date(espaiDesti[firstTargetIndex]);
+        const baseOriginalDate = new Date(firstEventDate);
+        
+        console.log(`[GENERIC_REPLICA_SERVICE] Base de mapeo: ${firstEventDate} → ${espaiDesti[firstTargetIndex]} (respectant dies setmana)`);
+        
+        // Aplicar distàncies a tots els esdeveniments
+        allEvents.forEach(({originalDate, event}) => {
+            // Calcular distància en dies des de l'esdeveniment base
+            const originalDateObj = new Date(originalDate);
+            const daysDiff = Math.round((originalDateObj - baseOriginalDate) / (1000 * 60 * 60 * 24));
+            
+            // Aplicar mateixa distància en destí
+            const targetDateObj = new Date(baseTargetDate);
+            targetDateObj.setDate(targetDateObj.getDate() + daysDiff);
+            const targetDateStr = targetDateObj.toISOString().split('T')[0];
+            
+            // Verificar que la data destí està dins de l'espai útil
+            if (espaiDesti.includes(targetDateStr)) {
+                // FASE 3: Crear instància CalendariIOC_Event directament
+                const originalCategory = event.getCategory();
+                const targetCategory = categoryMap.get(originalCategory?.id);
+                
+                const replicatedEvent = new CalendariIOC_Event({
+                    id: idHelper.generateNextEventId(targetCalendar.id),
+                    title: event.title,
+                    date: targetDateStr,
+                    description: event.description || '',
+                    isSystemEvent: event.isSystemEvent || false,
+                    category: targetCategory, // Usar categoria del mapa
+                    isReplicated: true,
+                    replicatedFrom: originalDate
+                });
+                
+                placedEvents.push({
+                    event: replicatedEvent,
+                    newDate: targetDateStr,
+                    sourceCalendar: sourceCalendar,
+                    originalDate: originalDate,
+                    confidence: 95
+                });
+                
+                console.log(`[GENERIC_REPLICA_SERVICE] "${event.title}": ${originalDate} → ${targetDateStr} (distància: ${daysDiff} dies)`);
+            } else {
+                console.log(`[GENERIC_REPLICA_SERVICE] Data ${targetDateStr} fora de l'espai útil per esdeveniment "${event.title}"`);
+            }
+        });
+        
+        console.log(`[GENERIC_REPLICA_SERVICE] Mapeo respectant dies setmana completat: ${placedEvents.length} esdeveniments ubicats`);
+        
+        return { 
+            placed: placedEvents, 
+            unplaced: [] // Per ara no gestionem esdeveniments que no cabent
         };
     }
     
