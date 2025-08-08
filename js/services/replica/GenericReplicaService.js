@@ -70,8 +70,8 @@ class GenericReplicaService extends ReplicaService {
             
             // Decidir estratègia segons comparació d'espais
             if (espaiUtilDesti.length >= espaiUtilOrigen.length) {
-                console.log(`[GENERIC_REPLICA_SERVICE] Espai destí igual o superior: aplicant còpia directa/expansió`);
-                return this.executeDirectOrExpansion(professorEvents, espaiUtilOrigen, espaiUtilDesti, sourceCalendar, categoryMap, targetCalendar);
+                console.log(`[GENERIC_REPLICA_SERVICE] Espai destí igual o superior: aplicant còpia directa 1:1`);
+                return this.executeDirectMapping(professorEvents, espaiUtilOrigen, espaiUtilDesti, sourceCalendar, categoryMap, targetCalendar);
             } else {
                 console.log(`[GENERIC_REPLICA_SERVICE] Espai destí menor: aplicant compressió per grups`);
                 return this.executeCompressionReplication(professorEvents, espaiUtilOrigen, espaiUtilDesti, sourceCalendar, categoryMap, targetCalendar);
@@ -84,22 +84,16 @@ class GenericReplicaService extends ReplicaService {
         }
     }
     
-    // Estratègia per espai destí igual o superior
-    executeDirectOrExpansion(professorEvents, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar) {
-        console.log(`[GENERIC_REPLICA_SERVICE] Executant còpia directa/expansió...`);
+    // Estratègia per espai destí igual o superior - sempre mapeo directe 1:1
+    executeDirectMapping(professorEvents, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar) {
+        console.log(`[GENERIC_REPLICA_SERVICE] Executant còpia directa 1:1...`);
         
         // Agrupar esdeveniments per dia
         const eventsByDay = this.groupEventsByDay(professorEvents);
         
-        if (espaiDesti.length === espaiOrigen.length) {
-            // Còpia directa dia a dia
-            console.log(`[GENERIC_REPLICA_SERVICE] Espais idèntics: còpia directa`);
-            return this.mapDirectly(eventsByDay, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar);
-        } else {
-            // Expansió: distribuir grups amb més espai
-            console.log(`[GENERIC_REPLICA_SERVICE] Expansió: distribuint grups amb més espai`);
-            return this.expandGroups(eventsByDay, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar);
-        }
+        // Sempre usar mapeo directe independentment de la mida del destí
+        console.log(`[GENERIC_REPLICA_SERVICE] Mapeo directe: mantenint posicions cronològiques originals`);
+        return this.mapDirectly(eventsByDay, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar);
     }
     
     // Estratègia per espai destí menor (compressió)
