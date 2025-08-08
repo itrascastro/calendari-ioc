@@ -54,7 +54,14 @@ class EstudiReplicaService extends ReplicaService {
                 return { 
                     placed: [], 
                     unplaced: professorEvents.map(event => ({ 
-                        event: event, // Mantenir instància original
+                        event: {
+                            id: event.id,
+                            title: event.title,
+                            date: event.date,
+                            description: event.description,
+                            isSystemEvent: event.isSystemEvent,
+                            categoryId: event.getCategory()?.id || event.categoryId
+                        },
                         sourceCalendar,
                         reason: "Calendari destí sense espai útil disponible" 
                     })) 
@@ -81,7 +88,14 @@ class EstudiReplicaService extends ReplicaService {
                 if (indexOrigen === -1) {
                     console.log(`[ESTUDI_REPLICA_SERVICE] Esdeveniment "${event.title}" no troba posició en espai origen`);
                     unplacedEvents.push({ 
-                        event: event, // Mantenir instància original
+                        event: {
+                            id: event.id,
+                            title: event.title,
+                            date: event.date,
+                            description: event.description,
+                            isSystemEvent: event.isSystemEvent,
+                            categoryId: event.getCategory()?.id || event.categoryId
+                        },
                         sourceCalendar,
                         reason: "Esdeveniment no està en espai útil d'origen" 
                     });
@@ -97,7 +111,14 @@ class EstudiReplicaService extends ReplicaService {
                 if (indexFinal === -1) {
                     console.log(`[ESTUDI_REPLICA_SERVICE] No es troba slot lliure per "${event.title}"`);
                     unplacedEvents.push({ 
-                        event: event, // Mantenir instància original
+                        event: {
+                            id: event.id,
+                            title: event.title,
+                            date: event.date,
+                            description: event.description,
+                            isSystemEvent: event.isSystemEvent,
+                            categoryId: event.getCategory()?.id || event.categoryId
+                        },
                         sourceCalendar,
                         reason: "Sense slots lliures disponibles" 
                     });

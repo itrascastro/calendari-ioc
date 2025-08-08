@@ -132,8 +132,10 @@ class PanelsRenderer {
     
     // === GENERACIÓ DE HTML D'ESDEVENIMENTS NO UBICATS ===
     generateUnplacedEventHTML(item, index) {
-        // FASE 3: Usar mètodes directes de l'instància Event
-        const categoryName = item.event.getCategoryName();
+        // FASE 3: Suportar tant instàncies de classe com objectes JSON plans
+        const categoryName = item.event.categoryId ? 
+            appStateManager.findCategoryById(item.event.categoryId)?.name || 'Sense categoria' : 
+            'Sense categoria';
         
         return `
             <div class="unplaced-event-item" draggable="true" data-event-index="${index}">

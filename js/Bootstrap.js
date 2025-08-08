@@ -130,7 +130,11 @@ document.addEventListener('DOMContentLoaded', () => {
             uiHelper,
             dateHelper,
             icsImporter,
-            idHelper
+            idHelper,
+            // Serveis de Replicació
+            ReplicaServiceFactory,
+            EstudiReplicaService,
+            GenericReplicaService
         };
     }
 });

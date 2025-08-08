@@ -249,8 +249,25 @@ class ReplicaManager {
         dateValidationService.validateReplicationDate(targetDate, calendar);
         
         // FASE 3: Crear nou esdeveniment com a instància de classe
-        const categoryId = unplacedItem.event.getCategory()?.id;
-        const category = calendar.findCategoryById(categoryId);
+        const categoryId = unplacedItem.event.categoryId;
+        let category = calendar.findCategoryById(categoryId);
+        
+        // Si la categoria no existeix al calendari destí, buscar-la al catàleg global
+        if (!category && categoryId) {
+            const categoryTemplate = appStateManager.categoryTemplates.find(t => t.id === categoryId);
+            
+            if (categoryTemplate) {
+                // Crear nova instància de categoria per al calendari destí
+                category = new CalendariIOC_Category({
+                    id: categoryTemplate.id,
+                    name: categoryTemplate.name,
+                    color: categoryTemplate.color,
+                    isSystem: false
+                });
+                calendar.addCategory(category);
+                console.log(`[ReplicaManager] Categoria "${categoryTemplate.name}" afegida al calendari destí des del catàleg global`);
+            }
+        }
         
         const newEvent = new CalendariIOC_Event({
             id: idHelper.generateNextEventId(appStateManager.currentCalendarId),
