@@ -54,7 +54,14 @@ class GenericReplicaService extends ReplicaService {
                 return { 
                     placed: [], 
                     unplaced: professorEvents.map(event => ({ 
-                        event: event, // Mantenir instància original
+                        event: {
+                            id: event.id,
+                            title: event.title,
+                            date: event.date,
+                            description: event.description,
+                            isSystemEvent: event.isSystemEvent,
+                            categoryId: event.getCategory()?.id || event.categoryId
+                        },
                         sourceCalendar,
                         reason: "Calendari destí sense espai útil disponible" 
                     })) 
@@ -246,7 +253,14 @@ class GenericReplicaService extends ReplicaService {
                 console.log(`[GENERIC_REPLICA_SERVICE] Dia ${originalDate} no està en espai útil d'origen`);
                 dayEvents.forEach(event => {
                     unplacedEvents.push({
-                        event: event, // Mantenir instància original
+                        event: {
+                            id: event.id,
+                            title: event.title,
+                            date: event.date,
+                            description: event.description,
+                            isSystemEvent: event.isSystemEvent,
+                            categoryId: event.getCategory()?.id || event.categoryId
+                        },
                         sourceCalendar,
                         reason: "Dia no està en espai útil d'origen"
                     });
@@ -267,7 +281,14 @@ class GenericReplicaService extends ReplicaService {
                 console.log(`[GENERIC_REPLICA_SERVICE] No hi ha espai per grup ${originalDate}`);
                 dayEvents.forEach(event => {
                     unplacedEvents.push({
-                        event: event, // Mantenir instància original
+                        event: {
+                            id: event.id,
+                            title: event.title,
+                            date: event.date,
+                            description: event.description,
+                            isSystemEvent: event.isSystemEvent,
+                            categoryId: event.getCategory()?.id || event.categoryId
+                        },
                         sourceCalendar,
                         reason: "Sense espai disponible en compressió"
                     });
