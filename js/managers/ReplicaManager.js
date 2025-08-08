@@ -52,6 +52,9 @@ class ReplicaManager {
         // Poblar select de calendaris destí
         this.populateTargetCalendarSelect(availableTargets);
         
+        // Configurar visibilitat de l'opció dies de la setmana
+        this.configureWeekdayOption(sourceCalendar, availableTargets);
+        
         // Obrir modal
         modalRenderer.openModal('replicationModal');
     }
@@ -69,6 +72,58 @@ class ReplicaManager {
             option.textContent = calendar.name;
             select.appendChild(option);
         });
+        
+        // Afegir event listener per actualitzar visibilitat de l'opció dies setmana
+        select.addEventListener('change', () => {
+            const sourceCalendar = appStateManager.calendars[this.currentSourceCalendarId];
+            const selectedTargetId = select.value;
+            
+            if (sourceCalendar && selectedTargetId) {
+                const targetCalendar = appStateManager.calendars[selectedTargetId];
+                if (targetCalendar) {
+                    this.updateWeekdayOptionVisibility(sourceCalendar, targetCalendar);
+                }
+            } else {
+                // Si no hi ha selecció vàlida, ocultar l'opció
+                this.hideWeekdayOption();
+            }
+        });
+    }
+    
+    // Configurar visibilitat inicial de l'opció dies de la setmana
+    configureWeekdayOption(sourceCalendar, availableTargets) {
+        // Inicialment sempre ocultar l'opció - només es mostrarà després de seleccionar destí
+        const weekdayOption = document.getElementById('respectWeekdays')?.parentElement;
+        if (weekdayOption) {
+            weekdayOption.style.display = 'none';
+        }
+    }
+    
+    // Actualitzar visibilitat quan canvia el calendari destí
+    updateWeekdayOptionVisibility(sourceCalendar, targetCalendar) {
+        const willUseGenericService = this.willUseGenericService(sourceCalendar, targetCalendar);
+        
+        const weekdayOption = document.getElementById('respectWeekdays')?.parentElement;
+        if (weekdayOption) {
+            weekdayOption.style.display = willUseGenericService ? 'block' : 'none';
+        }
+    }
+    
+    // Ocultar opció dies de la setmana
+    hideWeekdayOption() {
+        const weekdayOption = document.getElementById('respectWeekdays')?.parentElement;
+        if (weekdayOption) {
+            weekdayOption.style.display = 'none';
+        }
+    }
+    
+    // Determinar si es farà servir GenericReplicaService (mateixa lògica que ReplicaServiceFactory)
+    willUseGenericService(sourceCalendar, targetCalendar) {
+        const sourceType = sourceCalendar.type || 'Altre';
+        const targetType = targetCalendar.type || 'Altre';
+        
+        // Si qualsevol dels calendaris és "Altre", usar GenericReplicaService
+        return sourceType === 'Altre' || targetType === 'Altre';
     }
     
     // Executar replicació
