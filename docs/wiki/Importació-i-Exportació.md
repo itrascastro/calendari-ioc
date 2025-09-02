@@ -24,11 +24,22 @@ L'aplicació Calendari IOC ofereix un sistema complet d'importació i exportaci�
 
 ## Exportació de Calendaris
 
+### Prerequisits per exportar
+
+> **⚠️ ABANS D'EXPORTAR:** Assegura't que compleixes aquests requisits:
+
+1. **Calendari creat**: Has de tenir almenys un calendari amb dates configurades
+2. **Contingut per exportar**: El calendari pot tenir esdeveniments o estar buit (exportaràs l'estructura)
+3. **Calendari seleccionat**: Assegura't que tens seleccionat el calendari que vols exportar
+
 ### Com Exportar un Calendari
 
-1. **Seleccionar calendari**: Assegura't que el calendari que vols exportar està actiu
-2. **Obrir menú d'exportació**: Fes clic al botó "Exportar" al panell lateral
-3. **Triar format**: Selecciona entre JSON, ICS o HTML segons les teves necessitats
+1. **Seleccionar calendari**: Fes clic sobre el calendari que vols exportar a la llista de calendaris
+2. **Obrir menú d'accions**: Fes clic dret sobre el calendari seleccionat per obrir el menú contextual  
+3. **Triar format d'exportació**: Selecciona entre les opcions:
+   - **"Desar"** (format JSON)
+   - **"Exportar ICS"** (format iCalendar)
+   - **"Exportar HTML"** (pàgina web)
 4. **Descarregar fitxer**: L'arxiu es descarregarà automàticament
 
 ### Format JSON
@@ -134,6 +145,15 @@ END:VCALENDAR
 
 ## Importació de Calendaris
 
+### Prerequisits per importar
+
+> **⚠️ ABANS D'IMPORTAR:** Assegura't que compleixes aquests requisits:
+
+1. **Calendari de tipus "Altre"**: Només pots importar esdeveniments a calendaris de tipus "Altre" (no FP ni BTX)
+2. **Calendari destí creat**: Has de tenir ja creat el calendari on vols importar els esdeveniments
+3. **Fitxer ICS vàlid**: El fitxer que vols importar ha de ser un fitxer .ics correcte
+4. **Categories preparades**: Si vols que els esdeveniments tinguin categories específiques, crea-les abans d'importar
+
 ### Importació ICS
 
 **Limitacions i requireiments:**
@@ -143,11 +163,13 @@ END:VCALENDAR
 
 ### Com Importar un Fitxer ICS
 
-1. **Crear calendari "Altre"**: Primer has de tenir un calendari de tipus "Altre" actiu
-2. **Accedir a importació**: Fes clic al botó "Importar ICS" al panell lateral
-3. **Seleccionar fitxer**: Tria el fitxer .ics del teu ordinador
-4. **Configurar importació**: L'aplicació et mostrarà una previsualització
-5. **Confirmar importació**: Els esdeveniments s'afegiran al calendari actual
+1. **Seleccionar calendari "Altre"**: Fes clic sobre el calendari de tipus "Altre" on vols importar
+2. **Obrir menú d'accions**: Fes clic dret sobre el calendari seleccionat per obrir el menú contextual
+3. **Seleccionar "Importar ICS"**: Tria l'opció "Importar ICS" del menú (només visible per calendaris "Altre")
+4. **Seleccionar fitxer**: Tria el fitxer .ics del teu ordinador
+5. **Confirmar importació**: Els esdeveniments s'afegiran al calendari seleccionat
+
+> **Important:** L'opció "Importar ICS" només apareix al menú d'accions dels calendaris de tipus "Altre".
 
 ### Processament de la Importació
 

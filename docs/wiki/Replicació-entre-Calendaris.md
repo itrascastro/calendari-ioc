@@ -1,111 +1,47 @@
 # Replicació entre Calendaris
 
-La replicació és una funcionalitat avançada del Calendari IOC que permet copiar esdeveniments d'un calendari a un altre de manera intel·ligent, adaptant-se automàticament a les diferents dates i característiques dels calendaris de destí.
+La replicació et permet **copiar esdeveniments d'un calendari a un altre** de manera automàtica i intel·ligent. És molt útil per reutilitzar la planificació d'un mòdul en diferents semestres o adaptar calendaris entre diferents grups.
 
-## Visió General
+## Prerequisits per replicar
 
-### Què és la replicació?
+> **⚠️ ABANS DE COMENÇAR:** Assegura't que compleixes aquests requisits:
 
-La replicació és el procés de **copiar esdeveniments d'un calendari origen a un calendari destí**, adaptant-se automàticament a:
+### El que necessites:
+1. **Calendari origen amb esdeveniments**: El calendari que vols copiar ha de tenir esdeveniments creats
+2. **Calendari destí configurat**: El calendari on vols copiar ha de tenir dates d'inici i fi definides
+3. **Mínim 2 calendaris**: Has de tenir almenys dos calendaris diferents per poder replicar
+
+### Com accedir a la replicació:
+1. **Selecciona el calendari origen**: Fes clic sobre el calendari que conté els esdeveniments que vols copiar
+2. **Obre el menú d'accions**: Fes clic dret sobre el calendari seleccionat o usa el menú d'accions
+3. **Selecciona "Replicar"**: Tria l'opció de replicació del menú
+
+## Com funciona la replicació
+
+L'aplicació **adapta automàticament** els esdeveniments a les característiques del calendari destí:
 - **Dates diferents**: Els calendaris poden tenir períodes lectius diferents
-- **Durades diferents**: Un semestre pot ser més llarg o curt que l'altre
-- **Obstacles**: Festius i esdeveniments del sistema en el calendari de destí
+- **Durades diferents**: Un semestre pot ser més llarg o curt que l'altre  
+- **Obstacles**: Evita festius i esdeveniments del sistema en el calendari de destí
 
-### Per què replicar?
-
-**Casos d'ús habituals:**
+### Casos d'ús habituals:
 - **Professors**: Copiar la planificació d'un mòdul d'un semestre a l'altre
 - **Coordinadors**: Adaptar calendaris entre diferents cicles formatius
 - **Reutilització**: Aprofitar planificacions d'anys anteriors
 - **Consistència**: Mantenir la mateixa estructura temporal entre calendaris similars
 
-## Com Funciona la Nova Arquitectura de Replicació
+## Guia pas a pas per replicar
 
-### Sistema Multi-Algoritme Intel·ligent
+### Pas 1: Preparació
+1. **Verifica que tens dos calendaris**: Un amb esdeveniments (origen) i un buit o que vols actualitzar (destí)
+2. **Selecciona el calendari origen**: Fes clic sobre el calendari que conté els esdeveniments que vols copiar
+3. **Comprova que el calendari destí té dates**: El calendari on vols copiar ha de tenir dates d'inici i fi configurades
 
-L'aplicació utilitza un **sistema avançat de replicació** amb múltiples algoritmes especialitzats que se seleccionen automàticament segons el tipus de calendaris:
-
-#### Arquitectura basada en Factory Pattern
-
-1. **Detecció automàtica de tipus**: El sistema identifica els tipus de calendari origen i destí (FP, BTX o Altre)
-2. **Selecció d'algoritme**: Utilitza el **ReplicaServiceFactory** per seleccionar el servei més adequat
-3. **Execució optimitzada**: Cada algoritme està especialitzat per màxima eficiència en el seu domini
-4. **Gestió unificada**: Tots els serveis retornen el mateix format de resultat per compatibilitat
-
-#### Algoritmes Disponibles
-
-**EstudiReplicaService** (per calendaris FP/BTX):
-- Mantén 100% compatibilitat amb el comportament anterior
-- Només dies laborables (dilluns a divendres)
-- Un esdeveniment per dia màxim
-- Cerca radial de slots lliures
-- Detecció automàtica de PAF1
-
-**GenericReplicaService** (per calendaris "Altre"):
-- Optimitzat per calendaris genèrics sense restriccions acadèmiques
-- Suport per tots els dies de la setmana
-- Múltiples esdeveniments per dia
-- Preservació d'agrupacions d'esdeveniments
-- Estratègies adaptatives: còpia directa, expansió i compressió
-
-#### Procés de Selecció Automàtica
-
-```
-Si origen = "Altre" O destí = "Altre"
-    → Usar GenericReplicaService
-Sino
-    → Usar EstudiReplicaService (FP/BTX)
-```
-
-### Exemples Pràctics per Tipus de Replicació
-
-#### Replicació entre Calendaris d'Estudi (FP ↔ BTX)
-
-**Calendari Origen FP (Primer Semestre):**
-- Durada: 100 dies lectius (només laborables)
-- Esdeveniment a la posició 25 (25% del període)
-
-**Calendari Destí BTX (Segon Semestre):**
-- Durada: 90 dies lectius (només laborables)
-- L'esdeveniment es col·locarà a la posició 22-23 (25% de 90 dies)
-- **Algoritme**: EstudiReplicaService amb cerca radial de slots
-
-#### Replicació amb Calendaris "Altre"
-
-**Calendari Origen "Altre":**
-- Durada: 200 dies (inclou caps de setmana)
-- 3 esdeveniments el mateix dia (agrupació)
-
-**Calendari Destí "Altre" (Espais Idèntics):**
-- Durada: 200 dies (mateix espai útil)
-- **Estratègia**: Còpia directa dia a dia
-- **Resultat**: Agrupació d'esdeveniments preservada al 100%
-
-**Calendari Destí "Altre" (Espai Major):**
-- Durada: 250 dies (més espai disponible)
-- **Estratègia**: Expansió proporcional
-- **Resultat**: Events distribuïts amb més espai entre ells
-
-**Calendari Destí "Altre" (Espai Menor):**
-- Durada: 150 dies (menys espai disponible)
-- **Estratègia**: Compressió amb gestió de col·lisions
-- **Resultat**: Alguns esdeveniments poden quedar no ubicats
-
-## Procediment de Replicació
-
-### Pas 1: Preparar els Calendaris
-
-**Requisits:**
-- **Calendari origen**: Ha de tenir esdeveniments creats pel professor (no del sistema)
-- **Calendari destí**: Ha de tenir dates d'inici i fi definides
-- **Mínim 2 calendaris**: Necessites almenys dos calendaris per poder replicar
-
-### Pas 2: Iniciar la Replicació
-
-1. **Seleccionar calendari origen**: Assegura't que el calendari amb els esdeveniments que vols copiar està actiu
-2. **Obrir replicació**: Fes clic al botó "Replicar Calendari" al panell lateral
-3. **Seleccionar destí**: Al modal que s'obre, selecciona el calendari de destí de la llista desplegable
-4. **Confirmar replicació**: Fes clic a "Executar Replicació"
+### Pas 2: Iniciar la replicació
+1. **Selecciona el calendari origen**: Fes clic sobre el calendari que conté els esdeveniments que vols copiar
+2. **Obre el menú d'accions**: Fes clic dret sobre el calendari seleccionat per obrir el menú contextual
+3. **Selecciona "Replicar"**: Tria l'opció "Replicar" del menú d'accions
+4. **Tria calendari destí**: Al modal que s'obre, selecciona el calendari de destí de la llista desplegable
+5. **Confirma la replicació**: Fes clic a "Executar Replicació"
 
 ### Pas 3: Revisar els Resultats
 
