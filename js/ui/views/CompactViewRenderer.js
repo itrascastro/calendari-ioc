@@ -499,9 +499,9 @@ class CompactViewRenderer extends CalendarRenderer {
         
         return `
             <div class="compact-headers-row">
-                <div class="compact-month-header-spacer">Mes</div>
+                <div class="compact-month-header-spacer"></div>
                 ${headersHTML}
-                <div class="compact-week-header">Set.</div>
+                <div class="compact-week-header"></div>
             </div>
         `;
     }

@@ -563,7 +563,7 @@ body[data-current-view="compact"] .calendar-grid-wrapper {
     font-size: 0.5em;
     font-weight: 700;
     color: var(--main-text-color);
-    border: 1px solid var(--border-color);
+    border: none;
 }
 
 /* Cel·la de mes que ocupa múltiples files */
@@ -719,6 +719,8 @@ body[data-current-view="compact"] .calendar-grid-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Sense bordes visibles en la cel·la buida */
+    border: none !important;
 }
 
 .compact-day-header {
@@ -778,7 +780,7 @@ body[data-current-view="compact"] .calendar-grid-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-left: 1px solid var(--border-color);
+    border: none !important;
 }
 
 .compact-integrated-row > .compact-day-cell {
