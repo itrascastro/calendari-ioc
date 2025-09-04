@@ -35,8 +35,8 @@ una aplicació web per gestionar calendaris acadèmics.
     <div class="app-container">
         <header class="main-header">
             <div class="header-title">
-                <img src="img/logo-ioc.png" alt="IOC" class="header-logo dark-mode-logo">
-                <img src="img/IOC_blanc.jpg" alt="IOC" class="header-logo light-mode-logo">
+                <img src="img/logo_IOC_dark.png" alt="IOC" class="header-logo dark-mode-logo">
+                <img src="img/logo_IOC_light.jpg" alt="IOC" class="header-logo light-mode-logo">
                 <h1>Calendari IOC</h1>
             </div>
             <div class="header-actions">
@@ -98,6 +98,7 @@ una aplicació web per gestionar calendaris acadèmics.
                     <button data-action="change-view" data-view="global">Global</button>
                     <button data-action="change-view" data-view="semester">Semestre</button>
                     <button class="active" data-action="change-view" data-view="month">Mensual</button>
+                    <button data-action="change-view" data-view="compact">Ultra</button>
                     <button data-action="change-view" data-view="week">Setmanal</button>
                     <button data-action="change-view" data-view="day">Dia</button>
                 </div>
@@ -329,6 +330,7 @@ una aplicació web per gestionar calendaris acadèmics.
     <!-- Interfície d'usuari -->
     <script src="js/ui/views/CalendarRenderer.js"></script>
     <script src="js/ui/views/MonthViewRenderer.js"></script>
+    <script src="js/ui/views/CompactViewRenderer.js"></script>
     <script src="js/ui/views/DayViewRenderer.js"></script>
     <script src="js/ui/views/WeekViewRenderer.js"></script>
     <script src="js/ui/views/SemesterViewRenderer.js"></script>
