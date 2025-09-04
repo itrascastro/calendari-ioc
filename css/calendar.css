@@ -1066,7 +1066,8 @@ body[data-current-view="compact"] .calendar-grid-wrapper {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.event.dragging {
+.event.dragging,
+.compact-event.dragging {
     opacity: 0.6;
     transform: rotate(2deg) scale(0.95);
     cursor: grabbing;
@@ -1080,6 +1081,19 @@ body[data-current-view="compact"] .calendar-grid-wrapper {
 }
 
 .day-cell.drop-invalid {
+    border-color: var(--danger-color);
+    background-color: rgba(229, 62, 62, 0.1);
+    box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3);
+}
+
+/* Estats de drop per a vista compacta */
+.compact-day-cell.drop-target {
+    border-color: var(--accent-color);
+    background-color: rgba(79, 93, 149, 0.1);
+    box-shadow: 0 0 0 2px rgba(79, 93, 149, 0.3);
+}
+
+.compact-day-cell.drop-invalid {
     border-color: var(--danger-color);
     background-color: rgba(229, 62, 62, 0.1);
     box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3);
