@@ -14,17 +14,18 @@ const compactCalendarCssStyles = `
         background-color: #f8f9fa;
     }
 
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 12px; }
 
-    .calendar-header { text-align: center; margin-bottom: 30px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .calendar-header h1 { font-size: 2em; color: #4f5d95; margin-bottom: 10px; }
-    .period { font-size: 1.1em; color: #6c757d; }
-
-    .legend { background: white; padding: 20px; margin-bottom: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .legend h3 { margin-bottom: 15px; color: #4f5d95; }
-    .legend-items { display: flex; flex-wrap: wrap; gap: 15px; }
-    .legend-item { display: flex; align-items: center; gap: 8px; }
-    .legend-color { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+    /* Capçalera compacta (títol + període + llegenda en una sola franja) */
+    .compact-header { background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); padding: 12px; margin-bottom: 10px; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: start; }
+    .compact-header .title { display: flex; flex-direction: column; gap: 6px; }
+    .compact-header .title h1 { font-size: 1.4em; color: #4f5d95; line-height: 1.2; }
+    .compact-header .title .period { font-size: 0.95em; color: #6c757d; }
+    .compact-header .legend { background: transparent; padding: 0; margin: 0; box-shadow: none; }
+    .legend h3 { display: none; }
+    .legend-items { display: flex; flex-wrap: wrap; gap: 8px; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.9em; }
+    .legend-color { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
 
     /* Disposició general (export) */
     .compact-view-export { display: block; max-width: 100%; font-size: 0.9em; }
@@ -46,7 +47,45 @@ const compactCalendarCssStyles = `
     .compact-event { font-size: 9px; padding: 1px 2px; border-radius: 2px; color: white; line-height: 1.15; word-wrap: break-word; overflow-wrap: break-word; hyphens: auto; }
     .compact-event.system { font-style: italic; }
 
-    .calendar-footer { text-align: center; margin-top: 30px; padding: 15px; color: #6c757d; font-size: 0.9em; background: white; border-radius: 8px; }
+    .calendar-footer { text-align: center; margin-top: 12px; padding: 10px; color: #6c757d; font-size: 0.85em; background: white; border-radius: 8px; }
 
-    @media print { body { background: white; } .container { max-width: none; } .compact-day-cell { min-height: 16px; } }
+    @media print { 
+        @page { size: A4; margin: 10mm; }
+        body { background: white; }
+        .container { max-width: none; padding: 6mm; }
+        .compact-day-cell { min-height: 14px; }
+        .compact-header { box-shadow: none; }
+    }
 `;
+
+// Plantilla específica per a exportació compacta amb capçalera integrada
+const compactCalendarHtmlTemplate = `<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{CALENDAR_NAME}} - Vista Compacta</title>
+    <style>{{COMPACT_CSS}}</style>
+    <meta name="robots" content="noindex,nofollow">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+<body>
+    <div class="container">
+        <div class="compact-header">
+            <div class="title">
+                <h1>{{CALENDAR_NAME}}</h1>
+                <div class="period">{{PERIOD_TEXT}}</div>
+            </div>
+            {{LEGEND_INLINE}}
+        </div>
+
+        <div class="months-container">
+            {{CONTENT_HTML}}
+        </div>
+
+        <footer class="calendar-footer">
+            <p>Generat amb l'aplicació Calendari IOC el {{GENERATION_DATE}}</p>
+        </footer>
+    </div>
+</body>
+</html>`;

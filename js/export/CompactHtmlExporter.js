@@ -40,14 +40,15 @@ class CompactHtmlExporter {
 
         // Generar markup compacte amb el renderer ja existent en mode HTML
         const compactHTML = compactRenderer.render(calendar, current, 'HTML');
+        const legendInline = this.generateCategoriesLegend(calendar);
 
-        return calendarHtmlTemplate
+        return compactCalendarHtmlTemplate
             .replace('{{CALENDAR_NAME}}', `${calendar.name} · Vista Compacta`)
             .replace('{{CALENDAR_NAME}}', `${calendar.name} · Vista Compacta`)
             .replace('{{PERIOD_TEXT}}', `${dateHelper.formatForDisplay(startDate)} - ${dateHelper.formatForDisplay(endDate)}`)
-            .replace('{{CALENDAR_CSS}}', compactCalendarCssStyles)
-            .replace('{{CATEGORIES_LEGEND}}', this.generateCategoriesLegend(calendar))
-            .replace('{{MONTHS_HTML}}', compactHTML)
+            .replace('{{COMPACT_CSS}}', compactCalendarCssStyles)
+            .replace('{{LEGEND_INLINE}}', legendInline)
+            .replace('{{CONTENT_HTML}}', compactHTML)
             .replace('{{GENERATION_DATE}}', new Date().toLocaleDateString('ca-ES'));
     }
 
@@ -106,4 +107,3 @@ class CompactHtmlExporter {
 
 // Instància global
 const compactHtmlExporter = new CompactHtmlExporter();
-
