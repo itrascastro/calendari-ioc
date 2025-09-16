@@ -808,13 +808,15 @@ body[data-current-view="compact"] .calendar-grid-wrapper {
     min-height: 12px;
 }
 
-.compact-day-cell:hover {
-    background-color: #f8f9fa;
+/* No canviem el fons en hover a la vista compacta */
+body[data-current-view="compact"] .compact-day-cell:hover {
+    background-color: var(--card-bg-color);
 }
 
 .compact-day-cell.today {
-    background-color: #e3f2fd;
-    border: 1px solid var(--accent-color);
+    /* En vista compacta no remarquem el dia d'avui amb fons diferent */
+    background-color: var(--card-bg-color);
+    border: 1px solid var(--border-color);
 }
 
 .compact-day-cell.has-events {
