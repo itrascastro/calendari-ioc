@@ -135,6 +135,9 @@
     min-height: 0;
 }
 
+/* Només per a la vista compacta: cantonades quadrades del marc del calendari */
+/* Eliminar: no tocar cantonades globals del contenidor principal */
+
 /* Zoom de vista compacta (escala global del wrapper) */
 body { --compact-zoom: 1; }
 
@@ -598,7 +601,7 @@ body[data-current-view="compact"] .calendar-grid-wrapper {
 .compact-view-container {
     height: 100%;
     background-color: var(--bg-color);
-    border-radius: 8px;
+    border-radius: 0; /* cantonades quadrades per al marc del calendari compacte */
     overflow: hidden;
 }
 
