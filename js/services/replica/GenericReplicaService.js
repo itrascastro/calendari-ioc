@@ -23,7 +23,7 @@ class GenericReplicaService extends ReplicaService {
     
     // Funció principal de replicació optimitzada per calendaris "Altre"
     replicate(sourceCalendar, targetCalendar, respectWeekdays = true) {
-        console.log(`[GENERIC_REPLICA_SERVICE] Iniciant replicació per calendaris tipus "Altre"...`);
+        console.log(`[GENERIC_REPLICA_SERVICE] Iniciant replicació per calendaris tipus "ALTRE"...`);
         
         try {
             // Filtrar esdeveniments del professor
