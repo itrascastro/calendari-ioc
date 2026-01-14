@@ -165,8 +165,8 @@ class ReplicaManager {
     executeReplication() {
         const sourceCalendarId = this.currentSourceCalendarId;
         const targetCalendarId = document.getElementById('targetCalendarSelect').value;
-        // Opció temporalment desactivada mentre es revisa l'algorisme
-        const respectWeekdays = false;
+        // Opció temporalment desactivada per calendaris d'estudi; activada per ALTRE
+        let respectWeekdays = false;
         
         if (!sourceCalendarId) {
             throw new CalendariIOCException('702', 'ReplicaManager.executeReplication');
@@ -182,6 +182,10 @@ class ReplicaManager {
         if (!sourceCalendar || !targetCalendar) {
             throw new CalendariIOCException('704', 'ReplicaManager.executeReplication');
         }
+        
+        const sourceType = typeHelper.normalizeCalendarType(sourceCalendar.type);
+        const targetType = typeHelper.normalizeCalendarType(targetCalendar.type);
+        respectWeekdays = sourceType === 'ALTRE' && targetType === 'ALTRE';
 
         try {
             console.log(`[Replicació] Iniciant replicació: ${sourceCalendar.name} → ${targetCalendar.name}`);
