@@ -88,7 +88,7 @@ class EstudiReplicaService extends ReplicaService {
             
             // Fallback: usar compressió (lògica actual)
             console.log(`[ESTUDI_REPLICA_SERVICE] Aplicant compressió proporcional`);
-            return this.executeCompressionMapping(professorEvents, espaiUtilOrigen, espaiUtilDesti, sourceCalendar, categoryMap, targetCalendar);
+            return this.executeCompressionMapping(professorEvents, espaiUtilOrigen, espaiUtilDesti, sourceCalendar, categoryMap, targetCalendar, respectWeekdays);
         } catch (error) {
             console.error(`[ESTUDI_REPLICA_SERVICE] Error durant la replicació:`, error);
             console.error(`[ESTUDI_REPLICA_SERVICE] Stack trace:`, error.stack);
@@ -97,7 +97,7 @@ class EstudiReplicaService extends ReplicaService {
     }
     
     // Mètode de compressió amb agrupació preservada (SEMPRE agrupar esdeveniments del mateix dia)
-    executeCompressionMapping(professorEvents, espaiUtilOrigen, espaiUtilDesti, sourceCalendar, categoryMap, targetCalendar) {
+    executeCompressionMapping(professorEvents, espaiUtilOrigen, espaiUtilDesti, sourceCalendar, categoryMap, targetCalendar, respectWeekdays) {
         console.log(`[ESTUDI_REPLICA_SERVICE] Executant compressió amb agrupació preservada...`);
         
         // SEMPRE agrupar esdeveniments per dia primer
@@ -149,8 +149,16 @@ class EstudiReplicaService extends ReplicaService {
             // Calcular posició ideal en espai destí per al grup
             const indexIdeal = Math.round(indexOrigen * factorProporcio);
             
-            // Buscar slot lliure per a tot el grup
-            const indexFinal = this.findNearestFreeSlot(ocupacioEspaiDesti, indexIdeal);
+            // Buscar slot lliure per a tot el grup, prioritzant mateix dia setmana
+            let indexFinal = -1;
+            if (respectWeekdays) {
+                const weekday = new Date(originalDate).getDay();
+                indexFinal = this.findNearestFreeWeekdaySlot(ocupacioEspaiDesti, indexIdeal, weekday);
+            }
+            
+            if (indexFinal === -1) {
+                indexFinal = this.findNearestFreeSlot(ocupacioEspaiDesti, indexIdeal);
+            }
             
             if (indexFinal === -1) {
                 console.log(`[ESTUDI_REPLICA_SERVICE] No es troba slot lliure per grup ${originalDate}`);
@@ -313,6 +321,71 @@ class EstudiReplicaService extends ReplicaService {
         console.log(`[PAF Detection] PAF1 no definit per calendari tipus "${calendar.type}". Usant final de calendari: ${calendar.endDate}`);
         return calendar.endDate;
     }
+
+    // Cerca radial de slots lliures amb el mateix dia de la setmana
+    findNearestFreeWeekdaySlot(ocupacioMap, indexIdeal, weekday) {
+        const dates = Array.from(ocupacioMap.keys());
+        
+        if (indexIdeal >= dates.length) indexIdeal = dates.length - 1;
+        if (indexIdeal < 0) indexIdeal = 0;
+        
+        const isValid = (idx) => {
+            const dateStr = dates[idx];
+            if (ocupacioMap.get(dateStr) !== 'LLIURE') return false;
+            return new Date(dateStr).getDay() === weekday;
+        };
+        
+        if (isValid(indexIdeal)) {
+            return indexIdeal;
+        }
+        
+        let radiCerca = 1;
+        while (true) {
+            const indexEnrere = indexIdeal - radiCerca;
+            const indexEndavant = indexIdeal + radiCerca;
+            
+            if (indexEnrere >= 0 && isValid(indexEnrere)) {
+                return indexEnrere;
+            }
+            
+            if (indexEndavant < dates.length && isValid(indexEndavant)) {
+                return indexEndavant;
+            }
+            
+            if (indexEnrere < 0 && indexEndavant >= dates.length) {
+                return -1;
+            }
+            
+            radiCerca++;
+            if (radiCerca > dates.length) {
+                return -1;
+            }
+        }
+    }
+    
+    // Cerca la data disponible mes propera (anterior o següent)
+    findNearestAvailableDate(espaiDesti, targetDateStr, usedTargetDates) {
+        if (!espaiDesti.length) return null;
+        
+        const target = new Date(targetDateStr);
+        let bestDate = null;
+        let bestDiff = Infinity;
+        
+        for (const dateStr of espaiDesti) {
+            if (usedTargetDates.has(dateStr)) continue;
+            const candidate = new Date(dateStr);
+            const diff = Math.abs(candidate - target);
+            
+            if (diff < bestDiff) {
+                bestDiff = diff;
+                bestDate = dateStr;
+            } else if (diff === bestDiff && bestDate && candidate < new Date(bestDate)) {
+                bestDate = dateStr;
+            }
+        }
+        
+        return bestDate;
+    }
     
     // === NOUS MÈTODES PER MAPEO DIRECTE ===
     
@@ -431,12 +504,18 @@ class EstudiReplicaService extends ReplicaService {
             return new Date(date).getDay() === firstOriginalDay;
         });
         
+        let baseTargetDate;
         if (firstTargetIndex === -1) {
-            console.log(`[ESTUDI_REPLICA_SERVICE] No es troba dia coincident per ${firstOriginalDate} (dia ${firstOriginalDay}), usant mapeo per índex`);
-            return this.mapDirectly(eventsByDay, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar);
+            const fallbackDateStr = this.findNearestAvailableDate(espaiDesti, firstOriginalDate, usedTargetDates);
+            if (!fallbackDateStr) {
+                console.log(`[ESTUDI_REPLICA_SERVICE] Sense dates disponibles per iniciar mapeo de ${firstOriginalDate}`);
+                return { placed: [], unplaced: [] };
+            }
+            console.log(`[ESTUDI_REPLICA_SERVICE] No es troba dia coincident per ${firstOriginalDate} (dia ${firstOriginalDay}), usant data propera ${fallbackDateStr}`);
+            baseTargetDate = new Date(fallbackDateStr);
+        } else {
+            baseTargetDate = new Date(espaiDesti[firstTargetIndex]);
         }
-        
-        const baseTargetDate = new Date(espaiDesti[firstTargetIndex]);
         const baseOriginalDate = new Date(firstOriginalDate);
         
         console.log(`[ESTUDI_REPLICA_SERVICE] Base de mapeo: ${firstOriginalDate} (${this.getDayName(firstOriginalDay)}) → ${espaiDesti[firstTargetIndex]} (respectant dies setmana)`);
@@ -512,32 +591,65 @@ class EstudiReplicaService extends ReplicaService {
                     });
                 });
             } else {
-                const reason = !espaiDesti.includes(targetDateStr) 
-                    ? "Data calculada fora de l'espai útil de destí" 
-                    : "Data destí ja ocupada per altre grup";
-                
-                console.log(`[ESTUDI_REPLICA_SERVICE] Grup ${originalDate} no es pot ubicar: ${reason}`);
-                
-                // Tot el grup va a no ubicats
-                dayEvents.forEach(event => {
-                    const originalCategory = event.getCategory();
-                    const targetCategory = categoryMap.get(originalCategory?.id);
+                const fallbackDateStr = this.findNearestAvailableDate(espaiDesti, targetDateStr, usedTargetDates);
+                if (fallbackDateStr) {
+                    usedTargetDates.add(fallbackDateStr);
+                    const originalDay = new Date(originalDate).getDay();
+                    const targetDay = new Date(fallbackDateStr).getDay();
                     
-                    const unplacedEvent = new CalendariIOC_Event({
-                        id: event.id,
-                        title: event.title,
-                        date: event.date,
-                        description: event.description || '',
-                        isSystemEvent: event.isSystemEvent || false,
-                        category: targetCategory || originalCategory
-                    });
+                    console.log(`[ESTUDI_REPLICA_SERVICE] Grup ${originalDate} (${this.getDayName(originalDay)}) → ${fallbackDateStr} (${this.getDayName(targetDay)}) [fallback proper]`);
                     
-                    unplacedEvents.push({ 
-                        event: unplacedEvent,
-                        sourceCalendar,
-                        reason: reason
+                    dayEvents.forEach(event => {
+                        const originalCategory = event.getCategory();
+                        const targetCategory = categoryMap.get(originalCategory?.id);
+                        
+                        const replicatedEvent = new CalendariIOC_Event({
+                            id: idHelper.generateNextEventId(targetCalendar.id),
+                            title: event.title,
+                            date: fallbackDateStr,
+                            description: event.description || '',
+                            isSystemEvent: event.isSystemEvent || false,
+                            category: targetCategory,
+                            isReplicated: true,
+                            replicatedFrom: originalDate
+                        });
+                        
+                        placedEvents.push({
+                            event: replicatedEvent,
+                            newDate: fallbackDateStr,
+                            sourceCalendar: sourceCalendar,
+                            originalDate: originalDate,
+                            confidence: 80
+                        });
                     });
-                });
+                } else {
+                    const reason = !espaiDesti.includes(targetDateStr) 
+                        ? "Data calculada fora de l'espai útil de destí" 
+                        : "Data destí ja ocupada per altre grup";
+                    
+                    console.log(`[ESTUDI_REPLICA_SERVICE] Grup ${originalDate} no es pot ubicar: ${reason}`);
+                    
+                    // Tot el grup va a no ubicats
+                    dayEvents.forEach(event => {
+                        const originalCategory = event.getCategory();
+                        const targetCategory = categoryMap.get(originalCategory?.id);
+                        
+                        const unplacedEvent = new CalendariIOC_Event({
+                            id: event.id,
+                            title: event.title,
+                            date: event.date,
+                            description: event.description || '',
+                            isSystemEvent: event.isSystemEvent || false,
+                            category: targetCategory || originalCategory
+                        });
+                        
+                        unplacedEvents.push({ 
+                            event: unplacedEvent,
+                            sourceCalendar,
+                            reason: reason
+                        });
+                    });
+                }
             }
         }
         

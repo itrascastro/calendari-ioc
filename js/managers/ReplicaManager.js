@@ -185,7 +185,9 @@ class ReplicaManager {
         
         const sourceType = typeHelper.normalizeCalendarType(sourceCalendar.type);
         const targetType = typeHelper.normalizeCalendarType(targetCalendar.type);
-        respectWeekdays = sourceType === 'ALTRE' && targetType === 'ALTRE';
+        const bothAltres = sourceType === 'ALTRE' && targetType === 'ALTRE';
+        const bothStudies = sourceType !== 'ALTRE' && targetType !== 'ALTRE';
+        respectWeekdays = bothAltres || bothStudies;
 
         try {
             console.log(`[Replicació] Iniciant replicació: ${sourceCalendar.name} → ${targetCalendar.name}`);
