@@ -22,6 +22,7 @@
 class ReplicaManager {
     constructor() {
         this.currentSourceCalendarId = null;
+        this._targetCalendarChangeHandler = null;
     }
     
     // === GESTIÓ DE REPLICACIÓ ===
@@ -74,7 +75,10 @@ class ReplicaManager {
         });
         
         // Afegir event listener per actualitzar visibilitat de l'opció dies setmana
-        select.addEventListener('change', () => {
+        if (this._targetCalendarChangeHandler) {
+            select.removeEventListener('change', this._targetCalendarChangeHandler);
+        }
+        this._targetCalendarChangeHandler = () => {
             const sourceCalendar = appStateManager.calendars[this.currentSourceCalendarId];
             const selectedTargetId = select.value;
             
@@ -87,7 +91,8 @@ class ReplicaManager {
                 // Si no hi ha selecció vàlida, ocultar l'opció
                 this.hideWeekdayOption();
             }
-        });
+        };
+        select.addEventListener('change', this._targetCalendarChangeHandler);
     }
     
     // Configurar visibilitat inicial de l'opció dies de la setmana

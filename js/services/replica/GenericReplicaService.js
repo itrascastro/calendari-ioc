@@ -265,27 +265,8 @@ class GenericReplicaService extends ReplicaService {
         });
         
         if (firstTargetIndex === -1) {
-            console.log(`[GENERIC_REPLICA_SERVICE] No es troba dia coincident per ${firstEventDate}; tots els events queden pendents`);
-            allEvents.forEach(({ event }) => {
-                const originalCategory = event.getCategory();
-                const targetCategory = categoryMap.get(originalCategory?.id);
-                
-                const unplacedEvent = new CalendariIOC_Event({
-                    id: event.id,
-                    title: event.title,
-                    date: event.date,
-                    description: event.description || '',
-                    isSystemEvent: event.isSystemEvent || false,
-                    category: targetCategory || originalCategory
-                });
-                
-                unplacedEvents.push({
-                    event: unplacedEvent,
-                    sourceCalendar,
-                    reason: "Sense dia de setmana compatible en destí"
-                });
-            });
-            return { placed: [], unplaced: unplacedEvents };
+            console.log(`[GENERIC_REPLICA_SERVICE] No es troba dia coincident per ${firstEventDate}; fent fallback a mapeo cronològic`);
+            return this.mapDirectly(eventsByDay, espaiOrigen, espaiDesti, sourceCalendar, categoryMap, targetCalendar, false);
         }
         
         const baseTargetDate = new Date(espaiDesti[firstTargetIndex]);
